@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baizhi.dao.UserDao">
+    <resultMap type="com.baizhi.entity.User" id="UserMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="headImg" column="head_img" jdbcType="VARCHAR"/>
+        <result property="brief" column="brief" jdbcType="VARCHAR"/>
+        <result property="wechat" column="wechat" jdbcType="VARCHAR"/>
+        <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+        <result property="fansCount" column="fans_count" jdbcType="INTEGER"/>
+        <result property="videoCount" column="video_count" jdbcType="INTEGER"/>
+        <result property="score" column="score" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="sex" column="sex" jdbcType="VARCHAR"/>
+        <result property="city" column="city" jdbcType="VARCHAR"/>
+    </resultMap>
+    <!--查询总条数-->
+    <select id="queryCount" resultType="integer">
+        select count(id) from yingx.yx_user
+    </select>
+    <!--分页查询-->
+    <select id="queryByPage" resultMap="UserMap">
+        select
+          id, phone, username, head_img, brief, wechat, create_date, fans_count, video_count, score,status,sex,city
+        from yingx.yx_user limit #{start},#{rows}
+    </select>
+    <!--查询单个-->
+    <select id="queryById" resultMap="UserMap">
+        select
+          id, phone, username, head_img, brief, wechat, create_date, fans_count, video_count, score,status
+        from yingx.yx_user
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="UserMap">
+        select
+          id, phone, username, head_img, brief, wechat, create_date, fans_count, video_count, score
+        from yingx.yx_user
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="UserMap">
+        select
+          id, phone, username, head_img, brief, wechat, create_date, fans_count, video_count, score
+        from yingx.yx_user
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="phone != null and phone != ''">
+                and phone = #{phone}
+            </if>
+            <if test="username != null and username != ''">
+                and username = #{username}
+            </if>
+            <if test="headImg != null and headImg != ''">
+                and head_img = #{headImg}
+            </if>
+            <if test="brief != null and brief != ''">
+                and brief = #{brief}
+            </if>
+            <if test="wechat != null and wechat != ''">
+                and wechat = #{wechat}
+            </if>
+            <if test="createDate != null">
+                and create_date = #{createDate}
+            </if>
+            <if test="fansCount != null">
+                and fans_count = #{fansCount}
+            </if>
+            <if test="videoCount != null">
+                and video_count = #{videoCount}
+            </if>
+            <if test="score != null and score != ''">
+                and score = #{score}
+            </if>
+            <if test="sex != null and sex != ''">
+                and sex = #{sex}
+            </if>
+            <if test="city != null and city != ''">
+                and city = #{city}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into yingx.yx_user(phone, username, head_img, brief, wechat, create_date, fans_count, video_count, score)
+        values (#{phone}, #{username}, #{headImg}, #{brief}, #{wechat}, #{createDate}, #{fansCount}, #{videoCount}, #{score})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update yingx.yx_user
+        <set>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="headImg != null and headImg != ''">
+                head_img = #{headImg},
+            </if>
+            <if test="brief != null and brief != ''">
+                brief = #{brief},
+            </if>
+            <if test="wechat != null and wechat != ''">
+                wechat = #{wechat},
+            </if>
+            <if test="createDate != null">
+                create_date = #{createDate},
+            </if>
+            <if test="fansCount != null">
+                fans_count = #{fansCount},
+            </if>
+            <if test="videoCount != null">
+                video_count = #{videoCount},
+            </if>
+            <if test="score != null and score != ''">
+                score = #{score},
+            </if>
+            <if test="sex != null and sex != ''">
+                sex = #{sex},
+            </if>
+            <if test="city != null and city != ''">
+                city = #{city}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from yingx.yx_user where id = #{id}
+    </delete>
+
+    <!--按月份查询男生-->
+    <select id="queryByMonthBoys" resultType="com.baizhi.po.BoysPo">
+    select
+    CONCAT(month(create_date),'月') as month ,COUNT(id) as boys
+    from yx_user where sex='男' GROUP BY month(create_date)
+    </select>
+    <!--按月份查询女生-->
+    <select id="queryByMonthGirls" resultType="com.baizhi.po.GirlsPo">
+    select
+    CONCAT(month(create_date),'月') as month ,COUNT(id) as girls
+    from yx_user where sex='女' GROUP BY month(create_date)
+    </select>
+
+</mapper>

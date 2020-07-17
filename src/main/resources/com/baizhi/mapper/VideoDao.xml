@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baizhi.dao.VideoDao">
+
+    <resultMap type="com.baizhi.entity.Video" id="VideoMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="brief" column="brief" jdbcType="VARCHAR"/>
+        <result property="coverPath" column="cover_path" jdbcType="VARCHAR"/>
+        <result property="videoPath" column="video_path" jdbcType="VARCHAR"/>
+        <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+        <result property="group" column="group_id" jdbcType="VARCHAR"/>
+        <result property="likeNum" column="like_num" jdbcType="VARCHAR"/>
+        <result property="playNum" column="play_num" jdbcType="VARCHAR"/>
+        <association property="category" column="category_id" javaType="com.baizhi.entity.Category">
+            <result property="id" column="id" jdbcType="VARCHAR"/>
+            <result property="cateName" column="cate_name" jdbcType="VARCHAR"/>
+            <result property="levels" column="levels" jdbcType="INTEGER"/>
+            <result property="parentId" column="parent_id" jdbcType="VARCHAR"/>
+        </association>
+        <association property="user"  column="user_id" javaType="com.baizhi.entity.User">
+            <result property="id" column="id" jdbcType="VARCHAR"/>
+            <result property="phone" column="phone" jdbcType="VARCHAR"/>
+            <result property="username" column="username" jdbcType="VARCHAR"/>
+            <result property="headImg" column="head_img" jdbcType="VARCHAR"/>
+            <result property="brief" column="brief" jdbcType="VARCHAR"/>
+            <result property="wechat" column="wechat" jdbcType="VARCHAR"/>
+            <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+            <result property="fansCount" column="fans_count" jdbcType="INTEGER"/>
+            <result property="videoCount" column="video_count" jdbcType="INTEGER"/>
+            <result property="score" column="score" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="INTEGER"/>
+        </association>
+    </resultMap>
+    <!--sql片段-->
+    <sql id="sqlQuery" >
+        v.id as vId, v.title as vTitle, v.brief as vDescription, v.cover_path as vCover, v.video_path as vPath, v.create_date as vUploadTime,
+        u.head_img as headImg,u.id as userId,u.username as userName,
+        c.cate_name as cateName,c.id as categoryId
+    </sql>
+    <!--查询总条数-->
+    <select id="queryCount" resultType="integer">
+        select count(id) from yingx.yx_video
+    </select>
+    <!--分页查询-->
+    <select id="queryByPage" resultMap="VideoMap">
+        select
+        v.id, v.title, v.brief, v.cover_path, v.video_path, v.create_date, v.category_id, v.user_id, v.group_id, v.like_num, v.play_num,
+        u.id, u.phone, u.username, u.head_img, u.brief, u.wechat, u.create_date, u.fans_count, u.video_count, u.score,u.status,
+        c.id, c.cate_name, c.levels, c.parent_id
+        from yingx.yx_video v join yingx.yx_user u on v.user_id = u.id join yingx.yx_category c on v.category_id = c.id
+        limit #{rows} offset #{start}
+    </select>
+    <!--通过主键修改数据 -->
+        <update id="update">
+            update yingx.yx_video
+            <set>
+                <if test="title != null and title != ''">
+                    title = #{title},
+                </if>
+                <if test="brief != null and brief != ''">
+                    brief = #{brief},
+                </if>
+                <if test="coverPath != null and coverPath != ''">
+                    cover_path = #{coverPath},
+                </if>
+                <if test="videoPath != null and videoPath != ''">
+                    video_path = #{videoPath},
+                </if>
+                <if test="createDate != null">
+                    create_date = #{createDate},
+                </if>
+                <if test="categoryId != null and categoryId != ''">
+                    category_id = #{categoryId},
+                </if>
+                <if test="userId != null and userId != ''">
+                    user_id = #{userId},
+                </if>
+                <if test="group != null and group != ''">
+                    group_id = #{group},
+                </if>
+                <if test="likeNum != null and likeNum != ''">
+                    like_num = #{likeNum},
+                </if>
+                <if test="playNum != null and playNum != ''">
+                    play_num = #{playNum},
+                </if>
+            </set>
+            where id = #{id}
+        </update>
+    <!--新增所有列-->
+    <insert id="add" useGeneratedKeys="true">
+        insert into yingx.yx_video(id,title, brief, create_date, category_id, user_id)
+        values (#{id},#{title}, #{brief}, now(), #{category.id}, #{user.id})
+    </insert>
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from yingx.yx_video where id = #{id}
+    </delete>
+    <!--查询前台首页数据-->
+    <select id="queryByReleaseTime" resultType="com.baizhi.po.VideoPo">
+        select
+        <include refid="sqlQuery"></include>
+        from yingx.yx_video v join yingx.yx_user u on v.user_id = u.id join yingx.yx_category c on v.category_id = c.id
+        order by v.create_date desc
+    </select>
+    <!--首页搜索视频 参数 content-->
+    <select id="queryByLikeVideoName" resultType="com.baizhi.po.VideoPo">
+        select
+        <include refid="sqlQuery"></include>
+        from yingx.yx_video v join yingx.yx_user u on v.user_id = u.id join yingx.yx_category c on v.category_id = c.id
+        <where>
+            <!-- 使用concat(str1,str2)函数将两个参数连接 -->
+            <if test="brief != null and brief != ''">
+                v.brief like concat(concat("%",#{brief}),"%")
+            </if>
+        </where>
+        order by v.create_date desc
+    </select>
+    <!--查询所有-->
+    <select id="queryAll" resultMap="VideoMap">
+        select * from yingx.yx_video
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="VideoMap">
+        select
+          id, title, brief, cover_path, video_path, create_date, category_id, user_id, group_id, like_num, play_num
+        from yingx.yx_video
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="VideoMap">
+        select
+          id, title, brief, cover_path, video_path, create_date, category_id, user_id, group_id, like_num, play_num
+        from yingx.yx_video
+        limit #{offset}, #{limit}
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

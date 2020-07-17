@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baizhi.dao.CategoryDao">
+
+    <resultMap type="com.baizhi.entity.Category" id="CategoryMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="cateName" column="cate_name" jdbcType="VARCHAR"/>
+        <result property="levels" column="levels" jdbcType="INTEGER"/>
+        <result property="parentId" column="parent_id" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询一级类别总条数-->
+    <select id="queryCount" resultType="integer">
+        select count(id) from yingx.yx_category where levels = #{levels}
+    </select>
+    <!--分页查询一级类别-->
+    <select id="queryByPage" resultMap="CategoryMap">
+        select
+        id, cate_name, levels, parent_id
+        from yingx.yx_category
+        where levels = #{levels} limit #{start},#{rows}
+    </select>
+    <!--查询一级类别下二级类别总条数-->
+    <select id="queryTwoCount" resultType="integer">
+        select count(id) from yingx.yx_category where parent_id = #{parentId}
+    </select>
+    <!--分页查询一级类别-->
+    <select id="queryTwoByPage" resultMap="CategoryMap">
+        select
+        id, cate_name, levels, parent_id
+        from yingx.yx_category
+        where parent_id = #{parentId} limit #{start},#{rows}
+    </select>
+    <!--新增所有列-->
+    <insert id="add" keyProperty="id" useGeneratedKeys="true">
+        insert into yingx.yx_category(id,cate_name, levels,parent_id)
+        values (#{id},#{cateName}, #{levels},#{parentId})
+    </insert>
+    <!--修改类别数据-->
+    <update id="update">
+        update yingx.yx_category
+        <set>
+            <if test="cateName != null and cateName != ''">
+                cate_name = #{cateName},
+            </if>
+            <if test="levels != null">
+                levels = #{levels},
+            </if>
+            <if test="parentId != null and parentId != ''">
+                parent_id = #{parentId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from yingx.yx_category where id = #{id}
+    </delete>
+    <!--通过父级ID查询-->
+    <select id="queryByParentId" resultMap="CategoryMap">
+        select
+        id, cate_name, levels, parent_id
+        from yingx.yx_category
+        where parent_id = #{parentId}
+    </select>
+
+
+
+
+
+
+
+
+
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="CategoryMap">
+        select
+          id, cate_name, levels, parent_id
+        from yingx.yx_category
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="CategoryMap">
+        select
+          id, cate_name, levels, parent_id
+        from yingx.yx_category
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="CategoryMap">
+        select
+          id, cate_name, levels, parent_id
+        from yingx.yx_category
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="cateName != null and cateName != ''">
+                and cate_name = #{cateName}
+            </if>
+            <if test="levels != null">
+                and levels = #{levels}
+            </if>
+            <if test="parentId != null and parentId != ''">
+                and parent_id = #{parentId}
+            </if>
+        </where>
+    </select>
+
+
+
+
+</mapper>
